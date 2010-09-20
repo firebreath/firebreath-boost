@@ -74,6 +74,9 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 ***************************************************************************/
 
+#if 0
+
+
 #ifdef __cplusplus
 #  ifndef BOOST_CONFIG_HPP
 #     include <boost/config.hpp>
@@ -416,5 +419,7 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #endif
 #if defined(BOOST_AUTO_LINK_NOMANGLE)
 #  undef BOOST_AUTO_LINK_NOMANGLE
+#endif
+
 #endif
 
