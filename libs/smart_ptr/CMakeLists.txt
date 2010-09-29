@@ -18,42 +18,21 @@ set (CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 include(${CMAKE_DIR}/common.cmake)
 
-add_definitions(-DBOOST_THREAD_BUILD_LIB=1)
-
-if (WIN32)
-    set (PLATFORMDIR win32)
-else()
-    set (PLATFORMDIR pthread)
+if (VERBOSE)
+    message("Using boost include dir: ${Boost_INCLUDE_DIRS}")
 endif()
+
 include_directories (
     ${Boost_INCLUDE_DIRS}
-	${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/${PLATFORMDIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-
 file (GLOB GENERAL_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     src/*.cpp
 )
 
-file (GLOB WIN32_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-    src/win32/*.cpp
+list(APPEND SOURCES
+    ${GENERAL_SRC}
 )
-
-file (GLOB PTHREAD_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-    src/pthread/*.cpp
-)
-
-if (WIN32)
-    list(APPEND SOURCES
-        ${GENERAL_SRC}
-        ${WIN32_SRC}
-    )
-else()
-    list(APPEND SOURCES
-        ${GENERAL_SRC}
-        ${PTHREAD_SRC}
-    )
-endif()
 
 add_library (boost_smart_ptr STATIC ${SOURCES})
 
