@@ -18,27 +18,17 @@ set (CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 include(${CMAKE_DIR}/common.cmake)
 
-if (BOOST_FILESYSTEM_V3)
-    include_directories (
-        ${Boost_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/v3/src
-    )
-    file (GLOB GENERAL_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-        v3/src/*.cpp
-    )
-else()
-    include_directories (
-        ${Boost_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/v2/src
-    )
-    file (GLOB GENERAL_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-        v2/src/*.cpp
-    )
-endif()
+include_directories (
+    ${Boost_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+file (GLOB GENERAL_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    src/*/*.cpp
+)
 
 set(SOURCES
     ${GENERAL_SRC}
 )
 
-add_library (boost_filesystem STATIC ${SOURCES})
+add_library (boost_date_time STATIC ${SOURCES})
 

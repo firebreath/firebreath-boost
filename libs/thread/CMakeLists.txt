@@ -55,5 +55,5 @@ else()
     )
 endif()
 
-add_library (boost_smart_ptr STATIC ${SOURCES})
+add_library (boost_thread STATIC ${SOURCES})
 
