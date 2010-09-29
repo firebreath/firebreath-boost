@@ -18,17 +18,6 @@ set (CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 include(${CMAKE_DIR}/common.cmake)
 
-project (boost_thread)
-if (VERBOSE)
-    message ("Generating project ${PROJECT_NAME} in ${CMAKE_CURRENT_BINARY_DIR}")
-endif()
-
-add_definitions(-DBOOST_THREAD_BUILD_LIB=1)
-
-if (VERBOSE)
-    message("Using boost include dir: ${Boost_INCLUDE_DIRS}")
-endif()
-
 if (BOOST_FILESYSTEM_V3)
     include_directories (
         ${Boost_INCLUDE_DIRS}

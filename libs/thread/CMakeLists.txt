@@ -18,11 +18,6 @@ set (CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 include(${CMAKE_DIR}/common.cmake)
 
-project (boost_thread)
-if (VERBOSE)
-    message ("Generating project ${PROJECT_NAME} in ${CMAKE_CURRENT_BINARY_DIR}")
-endif()
-
 add_definitions(-DBOOST_THREAD_BUILD_LIB=1)
 
 if (WIN32)
@@ -30,7 +25,6 @@ if (WIN32)
 else()
     set (PLATFORMDIR pthread)
 endif()
-message("Using boost include dir: ${Boost_INCLUDE_DIRS}")
 include_directories (
     ${Boost_INCLUDE_DIRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/src
