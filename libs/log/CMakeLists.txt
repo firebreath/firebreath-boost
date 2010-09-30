@@ -18,7 +18,7 @@ set (CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 include(${CMAKE_DIR}/common.cmake)
 
-message("Including boost::log")
+
 include_directories (
     ${Boost_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -33,3 +33,8 @@ set(SOURCES
 
 add_library (boost_log STATIC ${SOURCES})
 
+link_boost_library(boost_log filesystem)
+link_boost_library(boost_log system)
+link_boost_library(boost_log date_time)
+link_boost_library(boost_log regex)
+link_boost_library(boost_log thread)
