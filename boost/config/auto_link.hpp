@@ -388,6 +388,7 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #endif // _MSC_VER || __BORLANDC__
 
+#endif
 //
 // finally undef any macros we may have set:
 //
@@ -421,5 +422,4 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #  undef BOOST_AUTO_LINK_NOMANGLE
 #endif
 
-#endif
 

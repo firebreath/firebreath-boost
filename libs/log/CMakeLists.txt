@@ -18,8 +18,7 @@ set (CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 include(${CMAKE_DIR}/common.cmake)
 
-add_definitions(-DBOOST_THREAD_BUILD_LIB=1)
-
+message("Including boost::log")
 include_directories (
     ${Boost_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -32,5 +31,5 @@ set(SOURCES
     ${GENERAL_SRC}
 )
 
-add_library (boost_serialization STATIC ${SOURCES})
+add_library (boost_log STATIC ${SOURCES})
 

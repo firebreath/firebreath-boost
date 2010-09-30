@@ -18,10 +18,6 @@ set (CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 include(${CMAKE_DIR}/common.cmake)
 
-if (VERBOSE)
-    message("Using boost include dir: ${Boost_INCLUDE_DIRS}")
-endif()
-
 include_directories (
     ${Boost_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
