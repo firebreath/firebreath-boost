@@ -103,7 +103,7 @@ namespace std {
 
 BOOST_UTF8_BEGIN_NAMESPACE
 
-struct BOOST_UTF8_DECL utf8_codecvt_facet :
+struct utf8_codecvt_facet :
     public std::codecvt<wchar_t, char, std::mbstate_t>  
 {
 public:
