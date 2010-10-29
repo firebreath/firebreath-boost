@@ -43,5 +43,5 @@ set(SOURCES
 add_library (boost_filesystem STATIC ${SOURCES})
 
 add_boost_library(system)
-export_boost_dependencies()
+export_project_dependencies()
 
