@@ -202,6 +202,9 @@
 #  define BOOST_REGEX_DECL
 #endif
 
+#if defined(BOOST_LIB_NAME)
+#undef BOOST_LIB_NAME
+#endif
 #if !defined(BOOST_REGEX_NO_LIB) && !defined(BOOST_REGEX_SOURCE) && !defined(BOOST_ALL_NO_LIB) && defined(__cplusplus)
 #  define BOOST_LIB_NAME boost_regex
 #  if defined(BOOST_REGEX_DYN_LINK) || defined(BOOST_ALL_DYN_LINK)

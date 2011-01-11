@@ -146,6 +146,9 @@ namespace std {
 // Set the name of our library, this will get undef'ed by auto_link.hpp
 // once it's done with it:
 //
+#if defined(BOOST_LIB_NAME)
+#undef BOOST_LIB_NAME
+#endif
 #define BOOST_LIB_NAME boost_date_time
 //
 // If we're importing code from a dll, then tell auto_link.hpp about it:
