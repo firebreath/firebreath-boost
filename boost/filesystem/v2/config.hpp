@@ -12,6 +12,10 @@
 #ifndef BOOST_FILESYSTEM2_CONFIG_HPP
 #define BOOST_FILESYSTEM2_CONFIG_HPP
 
+#ifdef BOOST_LIB_NAME
+#undef BOOST_LIB_NAME
+#endif
+
 # if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION != 2
 #   error Compiling Filesystem version 2 file with BOOST_FILESYSTEM_VERSION defined != 2
 # endif

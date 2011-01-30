@@ -10,6 +10,10 @@
 #ifndef BOOST_SYSTEM_CONFIG_HPP                  
 #define BOOST_SYSTEM_CONFIG_HPP
 
+#ifdef BOOST_LIB_NAME
+#undef BOOST_LIB_NAME
+#endif
+
 #include <boost/config.hpp>
 #include <boost/system/api_config.hpp>  // for BOOST_POSIX_API or BOOST_WINDOWS_API
 
