@@ -186,3 +186,4 @@ extended_type_info::operator==(const extended_type_info &rhs) const {
 
 } // namespace serialization
 } // namespace boost
+

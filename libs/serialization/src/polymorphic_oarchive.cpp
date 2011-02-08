@@ -27,3 +27,4 @@ template class archive_serializer_map<polymorphic_oarchive>;
 } // detail
 } // archive
 } // boost
+

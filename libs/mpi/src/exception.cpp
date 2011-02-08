@@ -27,3 +27,4 @@ exception::exception(const char* routine, int result_code)
 exception::~exception() throw() { }
 
 } } // end namespace boost::mpi
+

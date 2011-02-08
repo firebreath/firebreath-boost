@@ -791,3 +791,4 @@ namespace detail
 }
 
 }} // namespace boost::python
+

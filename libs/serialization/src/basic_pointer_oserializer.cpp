@@ -28,3 +28,4 @@ basic_pointer_oserializer::~basic_pointer_oserializer() {}
 } // namespace detail
 } // namespace archive
 } // namespace boost
+

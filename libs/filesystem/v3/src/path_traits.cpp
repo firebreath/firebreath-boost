@@ -207,3 +207,4 @@ namespace boost { namespace filesystem3 { namespace path_traits {
 }}} // namespace boost::filesystem3::path_traits
 
 #endif  // no wide character support
+

@@ -42,3 +42,4 @@ template class binary_oarchive_impl<
 } // namespace boost
 
 #endif // BOOST_NO_STD_WSTREAMBUF
+

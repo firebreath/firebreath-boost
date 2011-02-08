@@ -182,3 +182,4 @@ static struct register_dict_pytype_ptr
 }register_dict_pytype_ptr_;
 
 }}}  // namespace boost::python
+

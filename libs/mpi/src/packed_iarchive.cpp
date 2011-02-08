@@ -19,3 +19,4 @@ namespace boost { namespace archive {
 template class detail::archive_serializer_map<mpi::packed_iarchive> ;
 
 } } // end namespace boost::archive
+

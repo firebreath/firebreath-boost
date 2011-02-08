@@ -71,3 +71,4 @@ int num_edges(const graph_communicator& comm)
 }
 
 } } // end namespace boost::mpi
+

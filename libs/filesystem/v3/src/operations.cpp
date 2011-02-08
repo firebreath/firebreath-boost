@@ -1895,3 +1895,4 @@ namespace detail
 } // namespace boost
 
 #endif  // no wide character support
+

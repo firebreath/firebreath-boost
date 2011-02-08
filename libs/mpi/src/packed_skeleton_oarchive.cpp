@@ -20,3 +20,4 @@ template class detail::archive_serializer_map<
     boost::mpi::packed_skeleton_oarchive, boost::mpi::packed_oarchive> > ;
 
 } } // end namespace boost::archive
+

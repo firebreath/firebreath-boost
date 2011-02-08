@@ -268,3 +268,4 @@ void sp_array_destructor_hook(void *)
 } // namespace boost
 
 #endif // defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+

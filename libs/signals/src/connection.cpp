@@ -153,3 +153,4 @@ namespace boost {
 // Explicit instantiations to keep everything in the library
 template class std::list<boost::BOOST_SIGNALS_NAMESPACE::detail::bound_object>;
 #endif
+

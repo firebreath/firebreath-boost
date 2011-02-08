@@ -172,3 +172,4 @@ void gzip_footer::reset()
 } // End namespace boost::iostreams::detail.
 
 } } // End namespaces iostreams, boost.
+

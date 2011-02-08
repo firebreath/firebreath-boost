@@ -23,3 +23,4 @@ bool timer::time_is_global()
 }
 
 } } // end namespace boost::mpi
+

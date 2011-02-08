@@ -690,3 +690,4 @@ BOOST_REGEX_DECL regex_constants::syntax_type BOOST_REGEX_CALL get_default_synta
 
 } // re_detail
 } // boost
+

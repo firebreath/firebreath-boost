@@ -17,3 +17,4 @@ namespace boost { namespace archive { namespace detail {
 template class archive_serializer_map<mpi::detail::mpi_datatype_oarchive> ;
 
 } } } 
+

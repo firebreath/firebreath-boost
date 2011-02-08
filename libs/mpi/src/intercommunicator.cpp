@@ -52,3 +52,4 @@ communicator intercommunicator::merge(bool high) const
 }
 
 } } // end namespace boost::mpi
+

@@ -51,3 +51,4 @@ template class binary_iarchive_impl<
 
 } // namespace archive
 } // namespace boost
+

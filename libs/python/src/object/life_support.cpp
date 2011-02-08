@@ -119,3 +119,4 @@ PyObject* make_nurse_and_patient(PyObject* nurse, PyObject* patient)
 }
 
 }}} // namespace boost::python::objects
+

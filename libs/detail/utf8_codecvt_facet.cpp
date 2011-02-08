@@ -283,3 +283,4 @@ int utf8_codecvt_facet::get_cont_octet_out_count(
 BOOST_UTF8_END_NAMESPACE
 
 #endif
+

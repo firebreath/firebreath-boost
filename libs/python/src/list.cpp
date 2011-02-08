@@ -168,3 +168,4 @@ static struct register_list_pytype_ptr
 }register_list_pytype_ptr_;
 
 }}} // namespace boost::python
+

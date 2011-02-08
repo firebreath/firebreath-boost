@@ -159,3 +159,4 @@ extended_type_info_typeid_0::get_extended_type_info(
 } // namespace detail
 } // namespace serialization
 } // namespace boost
+

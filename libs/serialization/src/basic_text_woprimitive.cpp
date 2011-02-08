@@ -33,3 +33,4 @@ template class basic_text_oprimitive<std::wostream> ;
 } // namespace boost
 
 #endif // BOOST_NO_STD_WSTREAMBUF
+

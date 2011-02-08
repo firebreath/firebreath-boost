@@ -35,3 +35,4 @@ slice_base::step() const
 }
 
 } } } // !namespace boost::python::detail
+

@@ -241,3 +241,4 @@ void operator delete[](void * p, nothrow_t const &) throw()
 #endif
 
 #endif // defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
+

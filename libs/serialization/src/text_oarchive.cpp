@@ -31,3 +31,4 @@ template class text_oarchive_impl<text_oarchive> ;
 
 } // namespace serialization
 } // namespace boost
+

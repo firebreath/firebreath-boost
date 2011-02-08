@@ -123,3 +123,4 @@ std::string environment::processor_name()
 }
 
 } } // end namespace boost::mpi
+

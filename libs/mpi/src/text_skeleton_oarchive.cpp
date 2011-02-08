@@ -18,3 +18,4 @@ namespace boost { namespace archive {
 // template class detail::archive_serializer_map<text_oarchive>;
 
 } } // end namespace boost::archive
+
