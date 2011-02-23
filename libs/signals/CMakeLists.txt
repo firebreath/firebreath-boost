@@ -29,4 +29,5 @@ set(SOURCES
 )
 
 add_library (boost_signals STATIC ${SOURCES})
+set_target_properties(boost_signals PROPERTIES FOLDER "Libraries")
 

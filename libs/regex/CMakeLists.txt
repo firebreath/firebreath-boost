@@ -29,4 +29,5 @@ set(SOURCES
 )
 
 add_library (boost_regex STATIC ${SOURCES})
+set_target_properties(boost_regex PROPERTIES FOLDER "Libraries")
 

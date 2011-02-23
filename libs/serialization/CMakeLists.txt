@@ -31,4 +31,5 @@ set(SOURCES
 )
 
 add_library (boost_serialization STATIC ${SOURCES})
+set_target_properties(boost_serialization PROPERTIES FOLDER "Libraries")
 

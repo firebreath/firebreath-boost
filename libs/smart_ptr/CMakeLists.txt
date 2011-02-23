@@ -29,4 +29,5 @@ set(SOURCES
 )
 
 add_library (boost_smart_ptr STATIC ${SOURCES})
+set_target_properties(boost_smart_ptr PROPERTIES FOLDER "Libraries")
 

@@ -39,6 +39,7 @@ set(SOURCES
 )
 
 add_library (boost_filesystem STATIC ${SOURCES})
+set_target_properties(boost_filesystem PROPERTIES FOLDER "Libraries")
 
 if (FIREBREATH)
     add_boost_library(system)

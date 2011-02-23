@@ -29,4 +29,5 @@ set(SOURCES
 )
 
 add_library (boost_system STATIC ${SOURCES})
+set_target_properties(boost_system PROPERTIES FOLDER "Libraries")
 

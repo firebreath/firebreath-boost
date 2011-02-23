@@ -54,4 +54,5 @@ else()
 endif()
 
 add_library (boost_thread STATIC ${SOURCES})
+set_target_properties(boost_thread PROPERTIES FOLDER "Libraries")
 

@@ -29,4 +29,5 @@ set(SOURCES
 )
 
 add_library (boost_date_time STATIC ${SOURCES})
+set_target_properties(boost_date_time PROPERTIES FOLDER "Libraries")
 
