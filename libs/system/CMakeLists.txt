@@ -31,3 +31,10 @@ set(SOURCES
 add_library (boost_system STATIC ${SOURCES})
 set_target_properties(boost_system PROPERTIES FOLDER "Libraries")
 
+if (FB_RELEASE)
+    install (TARGETS boost_system
+        EXPORT FireBreath_Exports
+        DESTINATION bin/\${BUILD_TYPE}
+        COMPONENT FBCORE
+        )
+endif()

@@ -56,3 +56,10 @@ endif()
 add_library (boost_thread STATIC ${SOURCES})
 set_target_properties(boost_thread PROPERTIES FOLDER "Libraries")
 
+if (FB_RELEASE)
+    install (TARGETS boost_thread
+        EXPORT FireBreath_Exports
+        DESTINATION bin/\${BUILD_TYPE}
+        COMPONENT FBCORE
+        )
+endif()
