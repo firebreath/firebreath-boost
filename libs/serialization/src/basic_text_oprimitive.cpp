@@ -26,4 +26,3 @@ template class basic_text_oprimitive<std::ostream> ;
 
 } // namespace archive
 } // namespace boost
-

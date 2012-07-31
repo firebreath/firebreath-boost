@@ -41,4 +41,3 @@ locale::locale(
 #endif
 
 #endif
-

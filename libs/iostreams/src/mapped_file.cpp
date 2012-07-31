@@ -494,4 +494,3 @@ mapped_file_sink::mapped_file_sink(const mapped_file_sink& other)
 //----------------------------------------------------------------------------//
 
 } } // End namespaces iostreams, boost.
-

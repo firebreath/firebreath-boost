@@ -16,23 +16,13 @@
 cmake_minimum_required (VERSION 2.6)
 set (CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
-if (BOOST_FILESYSTEM_V3)
-    include_directories (
-        ${Boost_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/v3/src
-    )
-    file (GLOB GENERAL_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-        v3/src/*.cpp
-    )
-else()
-    include_directories (
-        ${Boost_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/v2/src
-    )
-    file (GLOB GENERAL_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-        v2/src/*.cpp
-    )
-endif()
+include_directories (
+    ${Boost_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+file (GLOB GENERAL_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    src/*.cpp
+)
 
 set(SOURCES
     ${GENERAL_SRC}

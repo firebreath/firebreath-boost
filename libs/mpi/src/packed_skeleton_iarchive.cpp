@@ -23,4 +23,3 @@ template class detail::archive_serializer_map<
     boost::mpi::packed_skeleton_iarchive, boost::mpi::packed_iarchive> > ;
 
 } } // end namespace boost::archive
-

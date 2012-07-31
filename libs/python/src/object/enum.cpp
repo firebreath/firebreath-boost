@@ -244,4 +244,3 @@ PyObject* enum_base::to_python(PyTypeObject* type_, long x)
 }
 
 }}} // namespace boost::python::object
-

@@ -23,4 +23,3 @@ object BOOST_PYTHON_DECL import(str name)
 
 }  // namespace boost::python
 }  // namespace boost
-

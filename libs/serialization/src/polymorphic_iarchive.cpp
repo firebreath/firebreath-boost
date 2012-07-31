@@ -27,4 +27,3 @@ template class archive_serializer_map<polymorphic_iarchive>;
 } // detail
 } // archive
 } // boost
-

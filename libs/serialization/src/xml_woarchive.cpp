@@ -33,4 +33,3 @@ template class xml_woarchive_impl<xml_woarchive> ;
 } // namespace boost
 
 #endif // BOOST_NO_STD_WSTREAMBUF
-

@@ -200,9 +200,9 @@ void basic_regex_parser<charT, traits>::fail(regex_constants::error_type error_c
    if(error_code != regex_constants::error_empty)
    {
       if((start_pos != 0) || (end_pos != (m_end - m_base)))
-         message += "  The error occured while parsing the regular expression fragment: '";
+         message += "  The error occurred while parsing the regular expression fragment: '";
       else
-         message += "  The error occured while parsing the regular expression: '";
+         message += "  The error occurred while parsing the regular expression: '";
       if(start_pos != end_pos)
       {
          message += std::string(m_base + start_pos, m_base + position);
@@ -669,8 +669,8 @@ bool basic_regex_parser<charT, traits>::parse_extended_escape()
    case regex_constants::escape_type_class:
       {
 escape_type_class_jump:
-         typedef typename traits::char_class_type mask_type;
-         mask_type m = this->m_traits.lookup_classname(m_position, m_position+1);
+         typedef typename traits::char_class_type m_type;
+         m_type m = this->m_traits.lookup_classname(m_position, m_position+1);
          if(m != 0)
          {
             basic_char_set<charT, traits> char_set;
@@ -941,7 +941,8 @@ bool basic_regex_parser<charT, traits>::parse_repeat(std::size_t low, std::size_
          ++m_position;
       }
       // for perl regexes only check for pocessive ++ repeats.
-      if((0 == (this->flags() & regbase::main_option_type)) 
+      if((m_position != m_end)
+         && (0 == (this->flags() & regbase::main_option_type)) 
          && (this->m_traits.syntax_type(*m_position) == regex_constants::syntax_plus))
       {
          pocessive = true;
@@ -1025,13 +1026,14 @@ bool basic_regex_parser<charT, traits>::parse_repeat(std::size_t low, std::size_
       {
          //
          // Check for illegal following quantifier, we have to do this here, because
-         // the extra states we insert below circumvents are usual error checking :-(
+         // the extra states we insert below circumvents our usual error checking :-(
          //
          switch(this->m_traits.syntax_type(*m_position))
          {
          case regex_constants::syntax_star:
          case regex_constants::syntax_plus:
          case regex_constants::syntax_question:
+         case regex_constants::syntax_open_brace:
             fail(regex_constants::error_badrepeat, m_position - m_base);
             return false;
          }
@@ -1381,8 +1383,8 @@ bool basic_regex_parser<charT, traits>::parse_inner_set(basic_char_set<charT, tr
          ++name_first;
          negated = true;
       }
-      typedef typename traits::char_class_type mask_type;
-      mask_type m = this->m_traits.lookup_classname(name_first, name_last);
+      typedef typename traits::char_class_type m_type;
+      m_type m = this->m_traits.lookup_classname(name_first, name_last);
       if(m == 0)
       {
          if(char_set.empty() && (name_last - name_first == 1))
@@ -2490,9 +2492,11 @@ option_group_jump:
       this->m_pdata->m_data.align();
       re_jump* jmp = static_cast<re_jump*>(this->getaddress(jump_offset));
       jmp->alt.i = this->m_pdata->m_data.size() - this->getoffset(jmp);
-      if(this->m_last_state == jmp)
+      if((this->m_last_state == jmp) && (markid != -2))
       {
-         // Oops... we didn't have anything inside the assertion:
+         // Oops... we didn't have anything inside the assertion.
+         // Note we don't get here for negated forward lookahead as (?!)
+         // does have some uses.
          // Rewind to start of (? sequence:
          --m_position;
          while(this->m_traits.syntax_type(*m_position) != regex_constants::syntax_open_mark) --m_position;
@@ -2711,6 +2715,8 @@ regex_constants::syntax_option_type basic_regex_parser<charT, traits>::parse_opt
       }
    }
    while(!breakout);
+   
+   breakout = false;
 
    if(*m_position == static_cast<charT>('-'))
    {

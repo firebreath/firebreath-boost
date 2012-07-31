@@ -10,15 +10,28 @@
 #ifndef BOOST_SYSTEM_CONFIG_HPP                  
 #define BOOST_SYSTEM_CONFIG_HPP
 
-#ifdef BOOST_LIB_NAME
-#undef BOOST_LIB_NAME
-#endif
-
 #include <boost/config.hpp>
 #include <boost/system/api_config.hpp>  // for BOOST_POSIX_API or BOOST_WINDOWS_API
 
 // This header implements separate compilation features as described in
 // http://www.boost.org/more/separate_compilation.html
+
+//  normalize macros  ------------------------------------------------------------------//
+
+#if !defined(BOOST_SYSTEM_DYN_LINK) && !defined(BOOST_SYSTEM_STATIC_LINK) \
+  && !defined(BOOST_ALL_DYN_LINK) && !defined(BOOST_ALL_STATIC_LINK)
+# define BOOST_SYSTEM_STATIC_LINK
+#endif
+
+#if defined(BOOST_ALL_DYN_LINK) && !defined(BOOST_SYSTEM_DYN_LINK)
+# define BOOST_SYSTEM_DYN_LINK 
+#elif defined(BOOST_ALL_STATIC_LINK) && !defined(BOOST_SYSTEM_STATIC_LINK)
+# define BOOST_SYSTEM_STATIC_LINK 
+#endif
+
+#if defined(BOOST_SYSTEM_DYN_LINK) && defined(BOOST_SYSTEM_STATIC_LINK)
+# error Must not define both BOOST_SYSTEM_DYN_LINK and BOOST_SYSTEM_STATIC_LINK
+#endif
 
 //  enable dynamic or static linking as requested --------------------------------------//
 

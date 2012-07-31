@@ -493,4 +493,3 @@ BOOST_PYTHON_DECL void register_dynamic_id_aux(
 }
 
 }}} // namespace boost::python::objects
-

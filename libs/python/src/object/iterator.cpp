@@ -37,4 +37,3 @@ void stop_iteration_error()
 }
 
 }}} // namespace boost::python::objects
-

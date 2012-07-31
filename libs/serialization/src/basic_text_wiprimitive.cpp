@@ -33,4 +33,3 @@ template class basic_text_iprimitive<std::wistream> ;
 } // namespace boost
 
 #endif // BOOST_NO_STD_WSTREAMBUF
-

@@ -68,4 +68,3 @@ void* BOOST_REGEX_CALL raw_storage::insert(size_type pos, size_type n)
 }
 
 }} // namespaces
-

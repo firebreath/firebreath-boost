@@ -46,4 +46,3 @@ boost::python::handle<> const &stl_input_iterator_impl::current() const
 }
 
 }}} // namespace boost::python::objects
-

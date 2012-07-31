@@ -70,4 +70,3 @@ int computation_tree::child_begin() const
 }
 
 } } } // end namespace boost::mpi::detail
-

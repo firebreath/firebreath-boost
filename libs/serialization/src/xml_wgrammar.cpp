@@ -17,7 +17,7 @@
 #define BOOST_WARCHIVE_SOURCE
 #include <boost/archive/impl/basic_xml_grammar.hpp>
 
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 // fixup for RogueWave
 #include <boost/config.hpp>
@@ -155,4 +155,3 @@ template class basic_xml_grammar<wchar_t>;
 } // namespace boost
 
 #endif
-

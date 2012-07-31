@@ -33,4 +33,3 @@ static struct register_tuple_pytype_ptr
 
 
 }}}  // namespace boost::python
-

@@ -69,4 +69,3 @@ namespace boost {
     } // end namespace detail
   } // end namespace BOOST_SIGNALS_NAMESPACE
 } // end namespace boost
-

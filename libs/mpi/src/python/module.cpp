@@ -53,4 +53,3 @@ BOOST_PYTHON_MODULE(mpi)
 }
 
 } } } // end namespace boost::mpi::python
-

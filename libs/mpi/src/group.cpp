@@ -104,4 +104,3 @@ template<> group group::exclude(int* first, int* last)
 }
 
 } } // end namespace boost::mpi
-

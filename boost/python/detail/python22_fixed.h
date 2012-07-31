@@ -150,4 +150,3 @@ extern "C" { // Boost.Python modification: provide missing extern "C"
 #include <pth.h>
 #endif
 #endif /* !Py_PYTHON_H */
-

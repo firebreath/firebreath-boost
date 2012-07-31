@@ -669,4 +669,3 @@ const char* timer_time_is_global_docstring =
   "local processor times.\n";
 
 } } } // end namespace boost::mpi::python
-

@@ -177,4 +177,3 @@ void scoped_static_mutex_lock::unlock()
 }
 
 #endif // BOOST_HAS_THREADS
-

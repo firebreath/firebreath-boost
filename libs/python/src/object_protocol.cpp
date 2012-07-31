@@ -195,4 +195,3 @@ BOOST_PYTHON_DECL void delslice(object const& target, handle<> const& begin, han
 }
 
 }}} // namespace boost::python::api
-

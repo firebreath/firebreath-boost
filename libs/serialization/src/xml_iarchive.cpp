@@ -44,4 +44,3 @@ template class xml_iarchive_impl<xml_iarchive> ;
 
 } // namespace archive
 } // namespace boost
-

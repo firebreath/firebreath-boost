@@ -18,4 +18,3 @@ template class archive_serializer_map<mpi::detail::content_oarchive> ;
 template class archive_serializer_map<boost::mpi::detail::ignore_skeleton_oarchive<boost::mpi::detail::content_oarchive> >;
 template class archive_serializer_map<boost::mpi::detail::ignore_skeleton_oarchive<boost::mpi::detail::mpi_datatype_oarchive> >;
 } } }
-

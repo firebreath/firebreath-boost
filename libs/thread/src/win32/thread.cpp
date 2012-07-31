@@ -4,12 +4,16 @@
 // (C) Copyright 2007 Anthony Williams
 // (C) Copyright 2007 David Deakins
 
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x400
+#endif
+
+#ifndef WINVER
 #define WINVER 0x400
+#endif
 
 #include <boost/thread/thread.hpp>
 #include <algorithm>
-#include <windows.h>
 #ifndef UNDER_CE
 #include <process.h>
 #endif
@@ -20,33 +24,45 @@
 #include <boost/throw_exception.hpp>
 #include <boost/thread/detail/tss_hooks.hpp>
 #include <boost/date_time/posix_time/conversion.hpp>
+#include <windows.h>
+#include <memory>
 
 namespace boost
 {
     namespace
     {
+#ifdef BOOST_THREAD_PROVIDES_ONCE_CXX11
+        boost::once_flag current_thread_tls_init_flag;
+#else
         boost::once_flag current_thread_tls_init_flag=BOOST_ONCE_INIT;
-        DWORD current_thread_tls_key=0;
+#endif
+        #if defined(UNDER_CE)
+        // Windows CE does not define the TLS_OUT_OF_INDEXES constant.
+        DWORD tls_out_of_index=0xFFFFFFFF;
+        #else
+        DWORD tls_out_of_index=TLS_OUT_OF_INDEXES;
+        #endif
+        DWORD current_thread_tls_key=tls_out_of_index;
 
         void create_current_thread_tls_key()
         {
             tss_cleanup_implemented(); // if anyone uses TSS, we need the cleanup linked in
             current_thread_tls_key=TlsAlloc();
-            BOOST_ASSERT(current_thread_tls_key!=TLS_OUT_OF_INDEXES);
+            BOOST_ASSERT(current_thread_tls_key!=tls_out_of_index);
         }
 
         void cleanup_tls_key()
         {
-            if(current_thread_tls_key)
+            if(current_thread_tls_key!=tls_out_of_index)
             {
                 TlsFree(current_thread_tls_key);
-                current_thread_tls_key=0;
+                current_thread_tls_key=tls_out_of_index;
             }
         }
 
         detail::thread_data_base* get_current_thread_data()
         {
-            if(!current_thread_tls_key)
+            if(current_thread_tls_key==tls_out_of_index)
             {
                 return 0;
             }
@@ -56,13 +72,13 @@ namespace boost
         void set_current_thread_data(detail::thread_data_base* new_data)
         {
             boost::call_once(current_thread_tls_init_flag,create_current_thread_tls_key);
-            if(current_thread_tls_key)
+            if(current_thread_tls_key!=tls_out_of_index)
                 BOOST_VERIFY(TlsSetValue(current_thread_tls_key,new_data));
             else
                 boost::throw_exception(thread_resource_error());
         }
 
-#ifdef BOOST_NO_THREADEX
+#ifndef BOOST_HAS_THREADEX
 // Windows CE doesn't define _beginthreadex
 
         struct ThreadProxyData
@@ -75,22 +91,25 @@ namespace boost
 
         DWORD WINAPI ThreadProxy(LPVOID args)
         {
-            ThreadProxyData* data=reinterpret_cast<ThreadProxyData*>(args);
+            std::auto_ptr<ThreadProxyData> data(reinterpret_cast<ThreadProxyData*>(args));
             DWORD ret=data->start_address_(data->arglist_);
-            delete data;
             return ret;
         }
-        
+
         typedef void* uintptr_t;
 
-        inline uintptr_t const _beginthreadex(void* security, unsigned stack_size, unsigned (__stdcall* start_address)(void*),
+        inline uintptr_t _beginthreadex(void* security, unsigned stack_size, unsigned (__stdcall* start_address)(void*),
                                               void* arglist, unsigned initflag, unsigned* thrdaddr)
         {
             DWORD threadID;
+            ThreadProxyData* data = new ThreadProxyData(start_address,arglist);
             HANDLE hthread=CreateThread(static_cast<LPSECURITY_ATTRIBUTES>(security),stack_size,ThreadProxy,
-                                        new ThreadProxyData(start_address,arglist),initflag,&threadID);
-            if (hthread!=0)
-                *thrdaddr=threadID;
+                                        data,initflag,&threadID);
+            if (hthread==0) {
+              delete data;
+              return 0;
+            }
+            *thrdaddr=threadID;
             return reinterpret_cast<uintptr_t const>(hthread);
         }
 
@@ -157,11 +176,11 @@ namespace boost
                         boost::detail::heap_delete(current_node);
                     }
                 }
-                
+
                 set_current_thread_data(0);
             }
         }
-        
+
         unsigned __stdcall thread_start_function(void* param)
         {
             detail::thread_data_base* const thread_info(reinterpret_cast<detail::thread_data_base*>(param));
@@ -184,7 +203,7 @@ namespace boost
         }
     }
 
-    thread::thread()
+    thread::thread() BOOST_NOEXCEPT
     {}
 
     void thread::start_thread()
@@ -197,6 +216,19 @@ namespace boost
         intrusive_ptr_add_ref(thread_info.get());
         thread_info->thread_handle=(detail::win32::handle)(new_thread);
         ResumeThread(thread_info->thread_handle);
+    }
+
+    void thread::start_thread(const attributes& attr)
+    {
+      //uintptr_t const new_thread=_beginthreadex(attr.get_security(),attr.get_stack_size(),&thread_start_function,thread_info.get(),CREATE_SUSPENDED,&thread_info->id);
+      uintptr_t const new_thread=_beginthreadex(0,attr.get_stack_size(),&thread_start_function,thread_info.get(),CREATE_SUSPENDED,&thread_info->id);
+      if(!new_thread)
+      {
+          boost::throw_exception(thread_resource_error());
+      }
+      intrusive_ptr_add_ref(thread_info.get());
+      thread_info->thread_handle=(detail::win32::handle)(new_thread);
+      ResumeThread(thread_info->thread_handle);
     }
 
     thread::thread(detail::thread_data_ptr data):
@@ -213,7 +245,7 @@ namespace boost
                 ++count;
                 interruption_enabled=false;
             }
-            
+
             void run()
             {}
         private:
@@ -245,26 +277,31 @@ namespace boost
             }
             return current_thread_data;
         }
-        
+
     }
 
-    thread::~thread()
+    thread::id thread::get_id() const BOOST_NOEXCEPT
     {
-        detach();
-    }
-    
-    thread::id thread::get_id() const
-    {
+    #if defined BOOST_THREAD_PROVIDES_BASIC_THREAD_ID
+      detail::thread_data_ptr local_thread_info=(get_thread_info)();
+      return local_thread_info?local_thread_info->id:0;
+      //return const_cast<thread*>(this)->native_handle();
+    #else
         return thread::id((get_thread_info)());
+    #endif
     }
 
-    bool thread::joinable() const
+    bool thread::joinable() const BOOST_NOEXCEPT
     {
         return (get_thread_info)();
     }
 
     void thread::join()
     {
+        if (this_thread::get_id() == get_id())
+        {
+            boost::throw_exception(thread_resource_error(system::errc::resource_deadlock_would_occur, "boost thread: trying joining itself"));
+        }
         detail::thread_data_ptr local_thread_info=(get_thread_info)();
         if(local_thread_info)
         {
@@ -275,6 +312,10 @@ namespace boost
 
     bool thread::timed_join(boost::system_time const& wait_until)
     {
+        if (this_thread::get_id() == get_id())
+        {
+            boost::throw_exception(thread_resource_error(system::errc::resource_deadlock_would_occur, "boost thread: trying joining itself"));
+        }
         detail::thread_data_ptr local_thread_info=(get_thread_info)();
         if(local_thread_info)
         {
@@ -286,8 +327,31 @@ namespace boost
         }
         return true;
     }
-    
-    void thread::detach()
+
+#ifdef BOOST_THREAD_USES_CHRONO
+
+    bool thread::try_join_until(const chrono::time_point<chrono::system_clock, chrono::nanoseconds>& tp)
+    {
+      if (this_thread::get_id() == get_id())
+      {
+        boost::throw_exception(thread_resource_error(system::errc::resource_deadlock_would_occur, "boost thread: trying joining itself"));
+      }
+      detail::thread_data_ptr local_thread_info=(get_thread_info)();
+      if(local_thread_info)
+      {
+        chrono::milliseconds rel_time= chrono::ceil<chrono::milliseconds>(tp-chrono::system_clock::now());
+        if(!this_thread::interruptible_wait(local_thread_info->thread_handle,rel_time.count()))
+        {
+            return false;
+        }
+        release_handle();
+      }
+      return true;
+    }
+
+#endif
+
+    void thread::detach() BOOST_NOEXCEPT
     {
         release_handle();
     }
@@ -296,7 +360,7 @@ namespace boost
     {
         thread_info=0;
     }
-    
+
     void thread::interrupt()
     {
         detail::thread_data_ptr local_thread_info=(get_thread_info)();
@@ -305,20 +369,20 @@ namespace boost
             local_thread_info->interrupt();
         }
     }
-    
-    bool thread::interruption_requested() const
+
+    bool thread::interruption_requested() const BOOST_NOEXCEPT
     {
         detail::thread_data_ptr local_thread_info=(get_thread_info)();
         return local_thread_info.get() && (detail::win32::WaitForSingleObject(local_thread_info->interruption_handle,0)==0);
     }
-    
-    unsigned thread::hardware_concurrency()
+
+    unsigned thread::hardware_concurrency() BOOST_NOEXCEPT
     {
         SYSTEM_INFO info={{0}};
         GetSystemInfo(&info);
         return info.dwNumberOfProcessors;
     }
-    
+
     thread::native_handle_type thread::native_handle()
     {
         detail::thread_data_ptr local_thread_info=(get_thread_info)();
@@ -369,7 +433,7 @@ namespace boost
                             target_time.abs_time.time_of_day().ticks_per_second();
                         if(ticks_per_second>hundred_nanoseconds_in_one_second)
                         {
-                            posix_time::time_duration::tick_type const 
+                            posix_time::time_duration::tick_type const
                                 ticks_per_hundred_nanoseconds=
                                 ticks_per_second/hundred_nanoseconds_in_one_second;
                             due_time.QuadPart+=
@@ -387,7 +451,7 @@ namespace boost
                 return due_time;
             }
         }
-        
+
 
         bool interruptible_wait(detail::win32::handle handle_to_wait_for,detail::timeout target_time)
         {
@@ -408,10 +472,10 @@ namespace boost
             }
 
             detail::win32::handle_manager timer_handle;
-            
+
 #ifndef UNDER_CE
             unsigned const min_timer_wait_period=20;
-            
+
             if(!target_time.is_sentinel())
             {
                 detail::timeout::remaining_time const time_left=target_time.remaining_milliseconds();
@@ -422,7 +486,7 @@ namespace boost
                     if(timer_handle!=0)
                     {
                         LARGE_INTEGER due_time=get_due_time(target_time);
-                        
+
                         bool const set_time_succeeded=SetWaitableTimer(timer_handle,&due_time,0,0,0,false)!=0;
                         if(set_time_succeeded)
                         {
@@ -438,17 +502,17 @@ namespace boost
                 }
             }
 #endif
-        
+
             bool const using_timer=timeout_index!=~0u;
             detail::timeout::remaining_time time_left(0);
-            
+
             do
             {
                 if(!using_timer)
                 {
                     time_left=target_time.remaining_milliseconds();
                 }
-                
+
                 if(handle_count)
                 {
                     unsigned long const notified_index=detail::win32::WaitForMultipleObjects(handle_count,handles,false,using_timer?INFINITE:time_left.milliseconds);
@@ -482,9 +546,14 @@ namespace boost
             return false;
         }
 
-        thread::id get_id()
+        thread::id get_id() BOOST_NOEXCEPT
         {
+        #if defined BOOST_THREAD_PROVIDES_BASIC_THREAD_ID
+          //return detail::win32::GetCurrentThread();
+          return detail::win32::GetCurrentThreadId();
+        #else
             return thread::id(get_or_make_current_thread_data());
+        #endif
         }
 
         void interruption_point()
@@ -495,23 +564,23 @@ namespace boost
                 throw thread_interrupted();
             }
         }
-        
-        bool interruption_enabled()
+
+        bool interruption_enabled() BOOST_NOEXCEPT
         {
             return get_current_thread_data() && get_current_thread_data()->interruption_enabled;
         }
-        
-        bool interruption_requested()
+
+        bool interruption_requested() BOOST_NOEXCEPT
         {
             return get_current_thread_data() && (detail::win32::WaitForSingleObject(get_current_thread_data()->interruption_handle,0)==0);
         }
 
-        void yield()
+        void yield() BOOST_NOEXCEPT
         {
             detail::win32::Sleep(0);
         }
-        
-        disable_interruption::disable_interruption():
+
+        disable_interruption::disable_interruption() BOOST_NOEXCEPT:
             interruption_was_enabled(interruption_enabled())
         {
             if(interruption_was_enabled)
@@ -519,8 +588,8 @@ namespace boost
                 get_current_thread_data()->interruption_enabled=false;
             }
         }
-        
-        disable_interruption::~disable_interruption()
+
+        disable_interruption::~disable_interruption() BOOST_NOEXCEPT
         {
             if(get_current_thread_data())
             {
@@ -528,15 +597,15 @@ namespace boost
             }
         }
 
-        restore_interruption::restore_interruption(disable_interruption& d)
+        restore_interruption::restore_interruption(disable_interruption& d) BOOST_NOEXCEPT
         {
             if(d.interruption_was_enabled)
             {
                 get_current_thread_data()->interruption_enabled=true;
             }
         }
-        
-        restore_interruption::~restore_interruption()
+
+        restore_interruption::~restore_interruption() BOOST_NOEXCEPT
         {
             if(get_current_thread_data())
             {
@@ -582,7 +651,7 @@ namespace boost
             }
             return NULL;
         }
-        
+
         void set_tss_data(void const* key,boost::shared_ptr<tss_cleanup_function> func,void* tss_data,bool cleanup_existing)
         {
             if(tss_data_node* const current_node=find_tss_data(key))

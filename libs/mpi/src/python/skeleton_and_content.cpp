@@ -171,4 +171,3 @@ void export_skeleton_and_content(class_<communicator>& comm)
 }
 
 } } } // end namespace boost::mpi::python
-

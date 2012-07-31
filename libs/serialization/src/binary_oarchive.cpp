@@ -37,4 +37,3 @@ template class binary_oarchive_impl<
 
 } // namespace archive
 } // namespace boost
-

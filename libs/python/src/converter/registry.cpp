@@ -304,4 +304,3 @@ namespace registry
 } // namespace registry
 
 }}} // namespace boost::python::converter
-

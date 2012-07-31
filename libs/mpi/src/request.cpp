@@ -118,4 +118,3 @@ void request::cancel()
 }
 
 } } // end namespace boost::mpi
-

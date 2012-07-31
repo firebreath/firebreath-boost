@@ -77,4 +77,3 @@ namespace boost { namespace mpi { namespace python { namespace detail {
   }
 
 } } } } // end namespace boost::mpi::python::detail
-

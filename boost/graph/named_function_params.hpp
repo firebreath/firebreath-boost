@@ -15,9 +15,8 @@
 #include <boost/ref.hpp>
 #include <boost/parameter/name.hpp>
 #include <boost/parameter/binding.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits.hpp>
 #include <boost/mpl/not.hpp>
-#include <boost/type_traits/add_reference.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/detail/d_ary_heap.hpp>
 #include <boost/property_map/property_map.hpp>
@@ -584,14 +583,18 @@ BOOST_BGL_DECLARE_NAMED_PARAMS
         g_hasQ =
           (parameter_exists<ArgPack, PriorityQueueTag>
            ::value));
+      typedef boost::reference_wrapper<int> int_refw;
+      typedef typename boost::parameter::value_type<
+                         ArgPack,
+                         PriorityQueueTag,
+                         int_refw
+                       >::type
+        param_value_type_wrapper;
+      typedef typename param_value_type_wrapper::type
+        param_value_type;
+      typedef typename boost::remove_const<param_value_type>::type param_value_type_no_const;
       typedef priority_queue_maker_helper<g_hasQ, Graph, ArgPack, KeyT, ValueT, KeyMapTag, IndexInHeapMapTag, Compare,
-                                          typename boost::remove_const<
-                                            typename boost::parameter::value_type<
-                                                       ArgPack,
-                                                       PriorityQueueTag,
-                                                       boost::reference_wrapper<int>
-                                                     >::type::type
-                                                   >::type> helper;
+                                          param_value_type_no_const> helper;
       typedef typename helper::priority_queue_type priority_queue_type;
 
       static priority_queue_type make_queue(const Graph& g, const ArgPack& ap, KeyT defaultKey) {
@@ -604,6 +607,13 @@ BOOST_BGL_DECLARE_NAMED_PARAMS
       KeyT defaultKey;
 
       make_priority_queue_from_arg_pack_gen(KeyT defaultKey_) : defaultKey(defaultKey_) { }
+
+      template <class F>
+      struct result {
+        typedef typename remove_const<typename remove_reference<typename function_traits<F>::arg1_type>::type>::type graph_type;
+        typedef typename remove_const<typename remove_reference<typename function_traits<F>::arg2_type>::type>::type arg_pack_type;
+        typedef typename priority_queue_maker<graph_type, arg_pack_type, KeyT, ValueT, PriorityQueueTag, KeyMapTag, IndexInHeapMapTag, Compare>::priority_queue_type type;
+      };
 
       template <class Graph, class ArgPack>
       typename priority_queue_maker<Graph, ArgPack, KeyT, ValueT, PriorityQueueTag, KeyMapTag, IndexInHeapMapTag, Compare>::priority_queue_type

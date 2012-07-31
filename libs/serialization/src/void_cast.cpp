@@ -13,7 +13,7 @@
 # pragma warning (disable : 4786) // too long name, harmless warning
 #endif
 
-#include <cassert>
+#include <boost/assert.hpp>
 #include <cstddef> // NULL
 #ifdef BOOST_SERIALIZATION_LOG
 #include <iostream>
@@ -23,7 +23,7 @@
 #include <set>
 #include <functional>
 #include <algorithm>
-#include <cassert>
+#include <boost/assert.hpp>
 
 // BOOST
 #define BOOST_SERIALIZATION_SOURCE
@@ -185,16 +185,16 @@ class void_caster_argument : public void_caster
 {
     virtual void const *
     upcast(void const * const /*t*/) const {
-        assert(false);
+        BOOST_ASSERT(false);
         return NULL;
     }
     virtual void const *
     downcast( void const * const /*t*/) const {
-        assert(false);
+        BOOST_ASSERT(false);
         return NULL;
     }
     virtual bool has_virtual_base() const {
-        assert(false);
+        BOOST_ASSERT(false);
         return false;
     }
 public:
@@ -290,6 +290,10 @@ void_caster::recursive_unregister() const {
     void_cast_detail::set_type::iterator it;
     for(it = s.begin(); it != s.end();){
         const void_caster * vc = *it;
+        if(vc == this){
+            s.erase(it++);
+        }
+        else
         if(vc->m_parent == this){
             s.erase(it);
             delete vc;
@@ -298,11 +302,6 @@ void_caster::recursive_unregister() const {
         else
             it++;
     }
-
-    // delete this guy if he's in there
-    it = s.find(this);
-    if(it != s.end())
-        s.erase(it);
 }
 
 } // namespace void_cast_detail
@@ -359,4 +358,3 @@ void_downcast(
 
 } // namespace serialization
 } // namespace boost
-

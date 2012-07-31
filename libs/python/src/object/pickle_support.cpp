@@ -76,4 +76,3 @@ object const& make_instance_reduce_function()
 }
 
 }} // namespace boost::python
-

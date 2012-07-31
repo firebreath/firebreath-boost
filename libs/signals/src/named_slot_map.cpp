@@ -132,4 +132,3 @@ void named_slot_map::remove_disconnected_slots()
 
 
 } } }
-
