@@ -25,7 +25,7 @@ else()
 endif()
 include_directories (
     ${Boost_INCLUDE_DIRS}
-	${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/${PLATFORMDIR}
 )
 
@@ -53,8 +53,16 @@ else()
     )
 endif()
 
+add_definitions(
+    -DBOOST_CHRONO_HEADER_ONLY
+    )
+
 add_library (boost_thread STATIC ${SOURCES})
 set_target_properties(boost_thread PROPERTIES FOLDER "Libraries")
+
+if (FIREBREATH)
+    add_boost_library(system)
+endif()
 
 if (FB_RELEASE)
     install (TARGETS boost_thread
