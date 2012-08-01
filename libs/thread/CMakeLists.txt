@@ -25,7 +25,7 @@ else()
 endif()
 include_directories (
     ${Boost_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/${PLATFORMDIR}
 )
 
@@ -62,6 +62,7 @@ set_target_properties(boost_thread PROPERTIES FOLDER "Libraries")
 
 if (FIREBREATH)
     add_boost_library(system)
+    export_project_dependencies()
 endif()
 
 if (FB_RELEASE)
