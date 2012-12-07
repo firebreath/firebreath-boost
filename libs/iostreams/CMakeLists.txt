@@ -29,7 +29,7 @@ set(SOURCES
 )
 
 add_library (boost_iostreams STATIC ${SOURCES})
-set_target_properties(boost_filesystem PROPERTIES FOLDER "Libraries")
+set_target_properties(boost_iostreams PROPERTIES FOLDER "Libraries")
 
 if (FIREBREATH)
     export_project_dependencies()
