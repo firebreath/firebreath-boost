@@ -83,12 +83,12 @@ void system_crypt_random(void* buf, std::size_t len, boost::system::error_code* 
   HCRYPTPROV handle;
   int errval = 0;
 
-  if (!::CryptAcquireContextW(&handle, 0, 0, PROV_RSA_FULL, 0))
+  if (!::CryptAcquireContextW(&handle, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
   {
     errval = ::GetLastError();
     if (errval == NTE_BAD_KEYSET)
     {
-      if (!::CryptAcquireContextW(&handle, 0, 0, PROV_RSA_FULL, CRYPT_NEWKEYSET))
+      if (!::CryptAcquireContextW(&handle, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT | CRYPT_NEWKEYSET))
       {
         errval = ::GetLastError();
       }
