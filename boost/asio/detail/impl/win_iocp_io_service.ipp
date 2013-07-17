@@ -15,6 +15,10 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1800)
+#include <algorithm> // min/max
+#endif // defined(_MSC_VER) && (_MSC_VER >= 1800)
+
 #include <boost/asio/detail/config.hpp>
 
 #if defined(BOOST_ASIO_HAS_IOCP)
