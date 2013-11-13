@@ -204,25 +204,29 @@
 #  define BOOST_HAS_STDINT_H
 #endif
 
+// C++ features supported by VC++ 12 (aka 2013)
+#if _MSC_VER < 1800
+#define BOOST_NO_DECLTYPE_N3276
+#define BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
+#define BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS
+#define BOOST_NO_RAW_LITERALS
+#define BOOST_NO_SCOPED_ENUMS
+#define BOOST_NO_VARIADIC_TEMPLATES
+#define BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX
+#endif // _MSC_VER < 1800
+
 // C++0x features not supported by any versions
 #define BOOST_NO_CHAR16_T
 #define BOOST_NO_CHAR32_T
 #define BOOST_NO_CONSTEXPR
-#define BOOST_NO_DECLTYPE_N3276
 #define BOOST_NO_DEFAULTED_FUNCTIONS
 #define BOOST_NO_DELETED_FUNCTIONS
-#define BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
-#define BOOST_NO_FUNCTION_TEMPLATE_DEFAULT_ARGS
 #define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #define BOOST_NO_NOEXCEPT
-#define BOOST_NO_RAW_LITERALS
-#define BOOST_NO_SCOPED_ENUMS
 #define BOOST_NO_TEMPLATE_ALIASES
 #define BOOST_NO_UNICODE_LITERALS
-#define BOOST_NO_VARIADIC_TEMPLATES
 #define BOOST_NO_SFINAE_EXPR
 #define BOOST_NO_TWO_PHASE_NAME_LOOKUP
-#define BOOST_NO_UNIFIED_INITIALIZATION_SYNTAX
 //
 // prefix and suffix headers:
 //
@@ -259,6 +263,8 @@
 #     define BOOST_COMPILER_VERSION evc10
 #   elif _MSC_VER < 1800 
 #     define BOOST_COMPILER_VERSION evc11 
+#   elif _MSC_VER < 1900
+#     define BOOST_COMPILER_VERSION evc12
 #   else
 #      if defined(BOOST_ASSERT_CONFIG)
 #         error "Unknown EVC++ compiler version - please run the configure tests and report the results"
@@ -284,6 +290,8 @@
 #     define BOOST_COMPILER_VERSION 10.0
 #   elif _MSC_VER < 1800 
 #     define BOOST_COMPILER_VERSION 11.0 
+#   elif _MSC_VER < 1900
+#     define BOOST_COMPILER_VERSION 12.0
 #   else
 #     define BOOST_COMPILER_VERSION _MSC_VER
 #   endif
@@ -292,8 +300,8 @@
 #define BOOST_COMPILER "Microsoft Visual C++ version " BOOST_STRINGIZE(BOOST_COMPILER_VERSION)
 
 //
-// last known and checked version is 1700 (VC11, aka 2011):
-#if (_MSC_VER > 1700)
+// last known and checked version is 1800 (VC12, aka 2013):
+#if (_MSC_VER > 1800)
 #  if defined(BOOST_ASSERT_CONFIG)
 #     error "Unknown compiler version - please run the configure tests and report the results"
 #  else
