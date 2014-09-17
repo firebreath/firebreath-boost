@@ -30,4 +30,12 @@ set(SOURCES
 
 add_library (boost_regex STATIC ${SOURCES})
 set_target_properties(boost_regex PROPERTIES FOLDER "Libraries")
+add_boost_library(regex)
 
+if (FB_RELEASE)
+    install (TARGETS boost_regex
+        EXPORT FireBreath_Exports
+        DESTINATION bin/\${BUILD_TYPE}
+        COMPONENT FBCORE
+        )
+endif()
