@@ -11,7 +11,7 @@
 #ifndef BOOST_INTERPROCESS_WINDOWS_NAMED_SEMAPHORE_HPP
 #define BOOST_INTERPROCESS_WINDOWS_NAMED_SEMAPHORE_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -32,13 +32,13 @@ namespace ipcdetail {
 
 class windows_named_semaphore
 {
-   /// @cond
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 
    //Non-copyable
    windows_named_semaphore();
    windows_named_semaphore(const windows_named_semaphore &);
    windows_named_semaphore &operator=(const windows_named_semaphore &);
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 
    public:
    windows_named_semaphore(create_only_t, const char *name, unsigned int initialCount, const permissions &perm = permissions());
@@ -56,7 +56,7 @@ class windows_named_semaphore
 
    static bool remove(const char *name);
 
-   /// @cond
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    private:
    friend class interprocess_tester;
    void dont_close_on_destruction();
@@ -90,7 +90,10 @@ class windows_named_semaphore
          //
          permissions sem_perm;
          sem_perm.set_unrestricted();
-         return m_sem_wrapper.open_or_create(aux_str.c_str(), static_cast<long>(m_sem_count), sem_perm);
+         bool created;
+         return m_sem_wrapper.open_or_create
+            ( aux_str.c_str(), static_cast<long>(m_sem_count)
+            , winapi_semaphore_wrapper::MaxCount, sem_perm, created);
       }
 
       virtual void close()
@@ -106,7 +109,7 @@ class windows_named_semaphore
       winapi_semaphore_wrapper&     m_sem_wrapper;
    };
 
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 };
 
 inline windows_named_semaphore::~windows_named_semaphore()

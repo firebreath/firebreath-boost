@@ -147,7 +147,7 @@ namespace boost { namespace program_options {
             if (prefix_style == command_line_style::allow_long_disguise)
                 return "-" + m_long_name;
         }
-		// sanity check: m_short_name[0] should be '-' or '/'
+        // sanity check: m_short_name[0] should be '-' or '/'
         if (m_short_name.length() == 2)
         {
             if (prefix_style == command_line_style::allow_slash_for_short)
@@ -469,7 +469,7 @@ namespace boost { namespace program_options {
                     // Take care to never increment the iterator past
                     // the end, since MSVC 8.0 (brokenly), assumes that
                     // doing that, even if no access happens, is a bug.
-                    unsigned remaining = distance(line_begin, par_end);
+                    unsigned remaining = static_cast<unsigned>(std::distance(line_begin, par_end));
                     string::const_iterator line_end = line_begin + 
                         ((remaining < line_length) ? remaining : line_length);
             
@@ -489,7 +489,7 @@ namespace boost { namespace program_options {
                         {                 
                             // is last_space within the second half ot the 
                             // current line
-                            if (static_cast<unsigned>(distance(last_space, line_end)) < 
+                            if (static_cast<unsigned>(std::distance(last_space, line_end)) < 
                                 (line_length / 2))
                             {
                                 line_end = last_space;
@@ -502,8 +502,8 @@ namespace boost { namespace program_options {
               
                     if (first_line)
                     {
-                        indent += par_indent;
-                        line_length -= par_indent; // there's less to work with now
+                        indent += static_cast<unsigned>(par_indent);
+                        line_length -= static_cast<unsigned>(par_indent); // there's less to work with now
                         first_line = false;
                     }
 
@@ -592,7 +592,7 @@ namespace boost { namespace program_options {
                       os.put(' ');
                    }
                 } else {
-                   for(unsigned pad = first_column_width - ss.str().size(); pad > 0; --pad)
+                   for(unsigned pad = first_column_width - static_cast<unsigned>(ss.str().size()); pad > 0; --pad)
                    {
                       os.put(' ');
                    }
@@ -604,12 +604,9 @@ namespace boost { namespace program_options {
         }
     }
 
-    void 
-    options_description::print(std::ostream& os) const
+    unsigned                                                                    
+    options_description::get_option_column_width() const                                
     {
-        if (!m_caption.empty())
-            os << m_caption << ":\n";
-
         /* Find the maximum width of the option column */
         unsigned width(23);
         unsigned i; // vc6 has broken for loop scoping
@@ -620,6 +617,11 @@ namespace boost { namespace program_options {
             ss << "  " << opt.format_name() << ' ' << opt.format_parameter();
             width = (max)(width, static_cast<unsigned>(ss.str().size()));            
         }
+
+        /* Get width of groups as well*/
+        for (unsigned j = 0; j < groups.size(); ++j)                            
+            width = max(width, groups[j]->get_option_column_width());
+
         /* this is the column were description should start, if first
            column is longer, we go to a new line */
         const unsigned start_of_description_column = m_line_length - m_min_description_length;
@@ -628,9 +630,20 @@ namespace boost { namespace program_options {
         
         /* add an additional space to improve readability */
         ++width;
-            
+        return width;                                                       
+    }
+
+    void 
+    options_description::print(std::ostream& os, unsigned width) const
+    {
+        if (!m_caption.empty())
+            os << m_caption << ":\n";
+
+        if (!width)
+            width = get_option_column_width();
+
         /* The options formatting style is stolen from Subversion. */
-        for (i = 0; i < m_options.size(); ++i)
+        for (unsigned i = 0; i < m_options.size(); ++i)
         {
             if (belong_to_group[i])
                 continue;
@@ -643,7 +656,8 @@ namespace boost { namespace program_options {
         }
 
         for (unsigned j = 0; j < groups.size(); ++j) {            
-            os << "\n" << *groups[j];
+            os << "\n";
+            groups[j]->print(os, width);
         }
     }
 

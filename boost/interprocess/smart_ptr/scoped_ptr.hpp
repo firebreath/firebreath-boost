@@ -4,7 +4,7 @@
 //
 // (C) Copyright Greg Colvin and Beman Dawes 1998, 1999.
 // (C) Copyright Peter Dimov 2001, 2002
-// (C) Copyright Ion Gaztanaga 2006. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2006-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -14,6 +14,10 @@
 
 #ifndef BOOST_INTERPROCESS_SCOPED_PTR_HPP_INCLUDED
 #define BOOST_INTERPROCESS_SCOPED_PTR_HPP_INCLUDED
+
+#if defined(_MSC_VER)
+#  pragma once
+#endif
 
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
@@ -40,13 +44,13 @@ template<class T, class Deleter>
 class scoped_ptr
    : private Deleter
 {
-   /// @cond
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    scoped_ptr(scoped_ptr const &);
    scoped_ptr & operator=(scoped_ptr const &);
 
    typedef scoped_ptr<T, Deleter> this_type;
    typedef typename ipcdetail::add_reference<T>::type reference;
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 
    public:
 
@@ -127,10 +131,10 @@ class scoped_ptr
    void swap(scoped_ptr & b) // never throws
    {  ipcdetail::do_swap<Deleter>(*this, b); ipcdetail::do_swap(m_ptr, b.m_ptr); }
 
-   /// @cond
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    private:
    pointer m_ptr;
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 };
 
 //!Exchanges the internal pointer and deleter with other scoped_ptr
@@ -147,7 +151,7 @@ typename scoped_ptr<T, D>::pointer to_raw_pointer(scoped_ptr<T, D> const & p)
 
 } // namespace interprocess
 
-/// @cond
+#if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 
 #if defined(_MSC_VER) && (_MSC_VER < 1400)
 template<class T, class D> inline
@@ -155,7 +159,7 @@ T *to_raw_pointer(boost::interprocess::scoped_ptr<T, D> const & p)
 {  return p.get();   }
 #endif
 
-/// @endcond
+#endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 
 } // namespace boost
 

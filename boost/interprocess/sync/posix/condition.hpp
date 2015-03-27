@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -11,7 +11,7 @@
 #ifndef BOOST_INTERPROCESS_POSIX_CONDITION_HPP
 #define BOOST_INTERPROCESS_POSIX_CONDITION_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -19,7 +19,7 @@
 #include <boost/interprocess/detail/workaround.hpp>
 
 #include <pthread.h>
-#include <errno.h>  
+#include <errno.h>
 #include <boost/interprocess/sync/posix/pthread_helpers.hpp>
 #include <boost/interprocess/sync/posix/ptime_to_timespec.hpp>
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
@@ -83,12 +83,13 @@ class posix_condition
    template <typename L>
    bool timed_wait(L& lock, const boost::posix_time::ptime &abs_time)
    {
+      if (!lock)
+         throw lock_exception();
+      //Posix does not support infinity absolute time so handle it here
       if(abs_time == boost::posix_time::pos_infin){
          this->wait(lock);
          return true;
       }
-      if (!lock)
-            throw lock_exception();
       return this->do_timed_wait(abs_time, *lock.mutex());
    }
 
@@ -98,17 +99,17 @@ class posix_condition
    template <typename L, typename Pr>
    bool timed_wait(L& lock, const boost::posix_time::ptime &abs_time, Pr pred)
    {
+      if (!lock)
+         throw lock_exception();
+      //Posix does not support infinity absolute time so handle it here
       if(abs_time == boost::posix_time::pos_infin){
          this->wait(lock, pred);
          return true;
       }
-      if (!lock)
-            throw lock_exception();
       while (!pred()){
          if (!this->do_timed_wait(abs_time, *lock.mutex()))
             return pred();
       }
-
       return true;
    }
 
@@ -145,21 +146,21 @@ inline posix_condition::~posix_condition()
 {
     int res = 0;
     res = pthread_cond_destroy(&m_condition);
-    BOOST_ASSERT(res == 0);
+    BOOST_ASSERT(res == 0); (void)res;
 }
 
 inline void posix_condition::notify_one()
 {
     int res = 0;
     res = pthread_cond_signal(&m_condition);
-    BOOST_ASSERT(res == 0);
+    BOOST_ASSERT(res == 0); (void)res;
 }
 
 inline void posix_condition::notify_all()
 {
     int res = 0;
     res = pthread_cond_broadcast(&m_condition);
-    BOOST_ASSERT(res == 0);
+    BOOST_ASSERT(res == 0); (void)res;
 }
 
 inline void posix_condition::do_wait(posix_mutex &mut)
@@ -167,7 +168,7 @@ inline void posix_condition::do_wait(posix_mutex &mut)
    pthread_mutex_t* pmutex = &mut.m_mut;
    int res = 0;
    res = pthread_cond_wait(&m_condition, pmutex);
-   BOOST_ASSERT(res == 0);
+   BOOST_ASSERT(res == 0); (void)res;
 }
 
 inline bool posix_condition::do_timed_wait

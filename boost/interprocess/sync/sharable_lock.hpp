@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -16,7 +16,7 @@
 #ifndef BOOST_INTERPROCESS_SHARABLE_LOCK_HPP
 #define BOOST_INTERPROCESS_SHARABLE_LOCK_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -27,7 +27,7 @@
 #include <boost/interprocess/exceptions.hpp>
 #include <boost/interprocess/detail/mpl.hpp>
 #include <boost/interprocess/detail/type_traits.hpp>
-#include <boost/move/move.hpp>
+#include <boost/move/utility_core.hpp>
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
 
 //!\file
@@ -51,13 +51,13 @@ class sharable_lock
 {
    public:
    typedef SharableMutex mutex_type;
-   /// @cond
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    private:
    typedef sharable_lock<SharableMutex> this_type;
    explicit sharable_lock(scoped_lock<mutex_type>&);
    typedef bool this_type::*unspecified_bool_type;
    BOOST_MOVABLE_BUT_NOT_COPYABLE(sharable_lock)
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
    public:
 
    //!Effects: Default constructs a sharable_lock.
@@ -189,7 +189,7 @@ class sharable_lock
    //!   before the assignment. In this case, this will own the mutex after the assignment
    //!   (and upgr will not), but the mutex's lock count will be decremented by one.
    sharable_lock &operator=(BOOST_RV_REF(sharable_lock<mutex_type>) upgr)
-   { 
+   {
       if(this->owns())
          this->unlock();
       m_locked = upgr.owns();
@@ -203,7 +203,7 @@ class sharable_lock
    //!Notes: The sharable_lock changes from a state of not owning the
    //!   mutex, to owning the mutex, blocking if necessary.
    void lock()
-   { 
+   {
       if(!mp_mutex || m_locked)
          throw lock_exception();
       mp_mutex->lock_sharable();
@@ -219,7 +219,7 @@ class sharable_lock
    //!   mutex_type does not support try_lock_sharable(), this function will
    //!   fail at compile time if instantiated, but otherwise have no effect.
    bool try_lock()
-   { 
+   {
       if(!mp_mutex || m_locked)
          throw lock_exception();
       m_locked = mp_mutex->try_lock_sharable();
@@ -236,7 +236,7 @@ class sharable_lock
    //!   timed_lock_sharable(), this function will fail at compile time if
    //!   instantiated, but otherwise have no effect.
    bool timed_lock(const boost::posix_time::ptime& abs_time)
-   { 
+   {
       if(!mp_mutex || m_locked)
          throw lock_exception();
       m_locked = mp_mutex->timed_lock_sharable(abs_time);
@@ -290,11 +290,11 @@ class sharable_lock
       std::swap(m_locked, other.m_locked);
    }
 
-   /// @cond
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    private:
    mutex_type *mp_mutex;
    bool        m_locked;
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 };
 
 } // namespace interprocess

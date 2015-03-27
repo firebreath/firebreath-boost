@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -11,7 +11,7 @@
 #ifndef BOOST_INTERPROCESS_NAMED_PROXY_HPP
 #define BOOST_INTERPROCESS_NAMED_PROXY_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -26,7 +26,7 @@
 #ifndef BOOST_INTERPROCESS_PERFECT_FORWARDING
 #include <boost/interprocess/detail/preprocessor.hpp>
 #else
-#include <boost/move/move.hpp>
+#include <boost/move/utility_core.hpp>
 #include <boost/interprocess/detail/variadic_templates_tools.hpp>
 #endif   //#ifdef BOOST_INTERPROCESS_PERFECT_FORWARDING
 
@@ -93,7 +93,7 @@ struct CtorNArg : public placement_destroy<T>
    {}
 
    tuple<Args&...> args_;
-};                                                                     
+};
 
 //!Describes a proxy class that implements named
 //!allocation syntax.
@@ -119,7 +119,7 @@ class named_proxy
 
    template<class ...Args>
    T *operator()(Args &&...args) const
-   { 
+   {
       CtorNArg<T, is_iterator, Args...> &&ctor_obj = CtorNArg<T, is_iterator, Args...>
          (boost::forward<Args>(args)...);
       return mp_mngr->template
@@ -199,7 +199,7 @@ struct Ctor0Arg   :  public placement_destroy<T>
 //       private:
 //       void construct(void *mem, true_)
 //       {  new((void*)mem)T(*m_p1, *m_p2); }
-//                                                                          
+//
 //       void construct(void *mem, false_)
 //       {  new((void*)mem)T(m_p1, m_p2); }
 //
@@ -293,7 +293,7 @@ class named_proxy
    //!makes a named allocation and calls the
    //!default constructor
    T *operator()() const
-   { 
+   {
       Ctor0Arg<T> ctor_obj;
       return mp_mngr->template
          generic_construct<T>(mp_name, m_num, m_find, m_dothrow, ctor_obj);

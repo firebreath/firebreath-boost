@@ -11,7 +11,7 @@
 #ifndef BOOST_INTERPROCESS_DETAIL_WINAPI_SEMAPHORE_WRAPPER_HPP
 #define BOOST_INTERPROCESS_DETAIL_WINAPI_SEMAPHORE_WRAPPER_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -21,6 +21,7 @@
 #include <boost/interprocess/permissions.hpp>
 #include <boost/interprocess/detail/win32_api.hpp>
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
+#include <boost/interprocess/sync/windows/winapi_wrapper_common.hpp>
 #include <boost/interprocess/errors.hpp>
 #include <boost/interprocess/exceptions.hpp>
 #include <limits>
@@ -31,12 +32,12 @@ namespace ipcdetail {
 
 class winapi_semaphore_functions
 {
-   /// @cond
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 
    //Non-copyable
    winapi_semaphore_functions(const winapi_semaphore_functions &);
    winapi_semaphore_functions &operator=(const winapi_semaphore_functions &);
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 
    public:
    winapi_semaphore_functions(void *hnd)
@@ -50,66 +51,34 @@ class winapi_semaphore_functions
    }
 
    void wait()
-   {
-      if(winapi::wait_for_single_object(m_sem_hnd, winapi::infinite_time) != winapi::wait_object_0){
-         error_info err = system_error_code();
-         throw interprocess_exception(err);
-      }
-   }
+   {  return winapi_wrapper_wait_for_single_object(m_sem_hnd);  }
 
    bool try_wait()
-   {
-      unsigned long ret = winapi::wait_for_single_object(m_sem_hnd, 0);
-      if(ret == winapi::wait_object_0){
-         return true;
-      }
-      else if(ret == winapi::wait_timeout){
-         return false;
-      }
-      else{
-         error_info err = system_error_code();
-         throw interprocess_exception(err);
-      }
-   }
+   {  return winapi_wrapper_try_wait_for_single_object(m_sem_hnd);  }
 
    bool timed_wait(const boost::posix_time::ptime &abs_time)
-   {
-      if(abs_time == boost::posix_time::pos_infin){
-         this->wait();
-         return true;
-      }
+   {  return winapi_wrapper_timed_wait_for_single_object(m_sem_hnd, abs_time);  }
 
-      unsigned long ret = winapi::wait_for_single_object
-         (m_sem_hnd, (abs_time - microsec_clock::universal_time()).total_milliseconds());
-      if(ret == winapi::wait_object_0){
-         return true;
-      }
-      else if(ret == winapi::wait_timeout){
-         return false;
-      }
-      else{
-         error_info err = system_error_code();
-         throw interprocess_exception(err);
-      }
-   }
-
-   unsigned int value() const
+   long value() const
    {
-      winapi::interprocess_semaphore_basic_information info;
-      winapi::NtQuerySemaphore_t pNtQuerySemaphore =
-            (winapi::NtQuerySemaphore_t)winapi::dll_func::get(winapi::dll_func::NtQuerySemaphore);
-      unsigned int ret_len;
-      long status = pNtQuerySemaphore(m_sem_hnd, winapi::semaphore_basic_information, &info, sizeof(info), &ret_len);
-      if(status){
+      long l_count, l_limit;
+      if(!winapi::get_semaphore_info(m_sem_hnd, l_count, l_limit))
          return 0;
-      }
-      return info.count;
+      return l_count;
    }
 
-   /// @cond
+   long limit() const
+   {
+      long l_count, l_limit;
+      if(!winapi::get_semaphore_info(m_sem_hnd, l_count, l_limit))
+         return 0;
+      return l_limit;
+   }
+
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    protected:
    void *m_sem_hnd;
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 };
 
 
@@ -122,6 +91,9 @@ class winapi_semaphore_wrapper
 
    public:
 
+   //Long is 32 bits in windows
+   static const long MaxCount = long(0x7FFFFFFF);
+
    winapi_semaphore_wrapper(void *hnd = winapi::invalid_handle_value)
       : winapi_semaphore_functions(hnd)
    {}
@@ -130,7 +102,7 @@ class winapi_semaphore_wrapper
    {  this->close(); }
 
    void *release()
-   { 
+   {
       void *hnd = m_sem_hnd;
       m_sem_hnd = winapi::invalid_handle_value;
       return hnd;
@@ -139,21 +111,37 @@ class winapi_semaphore_wrapper
    void *handle() const
    {  return m_sem_hnd; }
 
-   bool open_or_create(const char *name, long sem_count, const permissions &perm)
+   bool open_or_create( const char *name
+                      , long sem_count
+                      , long max_count
+                      , const permissions &perm
+                      , bool &created)
    {
       if(m_sem_hnd == winapi::invalid_handle_value){
          m_sem_hnd = winapi::open_or_create_semaphore
             ( name
             , sem_count
-            , (std::numeric_limits<long>::max)()
+            , max_count
             , (winapi::interprocess_security_attributes*)perm.get_permissions()
             );
+         created = winapi::get_last_error() != winapi::error_already_exists;
          return m_sem_hnd != winapi::invalid_handle_value;
       }
       else{
          return false;
       }
-   }  
+   }
+
+   bool open_semaphore(const char *name)
+   {
+      if(m_sem_hnd == winapi::invalid_handle_value){
+         m_sem_hnd = winapi::open_semaphore(name);
+         return m_sem_hnd != winapi::invalid_handle_value;
+      }
+      else{
+         return false;
+      }
+   }
 
    void close()
    {

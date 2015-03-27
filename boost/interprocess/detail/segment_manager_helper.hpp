@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -11,7 +11,7 @@
 #ifndef BOOST_INTERPROCESS_SEGMENT_MANAGER_BASE_HPP
 #define BOOST_INTERPROCESS_SEGMENT_MANAGER_BASE_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -32,6 +32,7 @@
 #include <string>    //char_traits
 #include <new>       //std::nothrow
 #include <utility>   //std::pair
+#include <iterator>  //std::iterator_traits
 #include <boost/assert.hpp>   //BOOST_ASSERT
 #include <functional>   //unary_function
 #ifndef BOOST_NO_EXCEPTIONS
@@ -72,7 +73,6 @@ class mem_algo_deallocator
    {  if(m_ptr) m_algo.deallocate(m_ptr);  }
 };
 
-/// @cond
 template<class size_type>
 struct block_header
 {
@@ -81,20 +81,17 @@ struct block_header
    unsigned char  m_value_alignment;
    unsigned char  m_alloc_type_sizeof_char;
 
-   block_header(size_type value_bytes
-               ,size_type value_alignment
-               ,unsigned char alloc_type
-               ,std::size_t sizeof_char
+   block_header(size_type val_bytes
+               ,size_type val_alignment
+               ,unsigned char al_type
+               ,std::size_t szof_char
                ,std::size_t num_char
                )
-      :  m_value_bytes(value_bytes)
+      :  m_value_bytes(val_bytes)
       ,  m_num_char((unsigned short)num_char)
-      ,  m_value_alignment((unsigned char)value_alignment)
-      ,  m_alloc_type_sizeof_char
-         ( (alloc_type << 5u) |
-           ((unsigned char)sizeof_char & 0x1F)   )
+      ,  m_value_alignment((unsigned char)val_alignment)
+      ,  m_alloc_type_sizeof_char( (al_type << 5u) | ((unsigned char)szof_char & 0x1F) )
    {};
-
 
    template<class T>
    block_header &operator= (const T& )
@@ -118,7 +115,7 @@ struct block_header
    {
       return get_rounded_size
                ( size_type(sizeof(Header))
-			   , size_type(::boost::alignment_of<block_header<size_type> >::value))
+            , size_type(::boost::alignment_of<block_header<size_type> >::value))
            + total_size();
    }
 
@@ -130,7 +127,7 @@ struct block_header
 
    template<class CharType>
    CharType *name() const
-   { 
+   {
       return const_cast<CharType*>(reinterpret_cast<const CharType*>
          (reinterpret_cast<const char*>(this) + name_offset()));
    }
@@ -175,7 +172,7 @@ struct block_header
    {  return block_header_from_value(value, sizeof(T), ::boost::alignment_of<T>::value);  }
 
    static block_header<size_type> *block_header_from_value(const void *value, std::size_t sz, std::size_t algn)
-   { 
+   {
       block_header * hdr =
          const_cast<block_header*>
             (reinterpret_cast<const block_header*>(reinterpret_cast<const char*>(value) -
@@ -189,20 +186,20 @@ struct block_header
 
    template<class Header>
    static block_header<size_type> *from_first_header(Header *header)
-   { 
+   {
       block_header<size_type> * hdr =
          reinterpret_cast<block_header<size_type>*>(reinterpret_cast<char*>(header) +
-		 get_rounded_size(size_type(sizeof(Header)), size_type(::boost::alignment_of<block_header<size_type> >::value)));
+       get_rounded_size(size_type(sizeof(Header)), size_type(::boost::alignment_of<block_header<size_type> >::value)));
       //Some sanity checks
       return hdr;
    }
 
    template<class Header>
    static Header *to_first_header(block_header<size_type> *bheader)
-   { 
+   {
       Header * hdr =
          reinterpret_cast<Header*>(reinterpret_cast<char*>(bheader) -
-		 get_rounded_size(size_type(sizeof(Header)), size_type(::boost::alignment_of<block_header<size_type> >::value)));
+       get_rounded_size(size_type(sizeof(Header)), size_type(::boost::alignment_of<block_header<size_type> >::value)));
       //Some sanity checks
       return hdr;
    }
@@ -326,6 +323,15 @@ class char_ptr_holder
    operator const CharType *()
    {  return m_name;  }
 
+   const CharType *get() const
+   {  return m_name;  }
+
+   bool is_unique() const
+   {  return m_name == reinterpret_cast<CharType*>(-1);  }
+
+   bool is_anonymous() const
+   {  return m_name == static_cast<CharType*>(0);  }
+
    private:
    const CharType *m_name;
 };
@@ -350,8 +356,9 @@ struct index_key
    public:
 
    //!Constructor of the key
-   index_key (const char_type *name, size_type length)
-      : mp_str(name), m_len(length) {}
+   index_key (const char_type *nm, size_type length)
+      : mp_str(nm), m_len(length)
+   {}
 
    //!Less than function for index ordering
    bool operator < (const index_key & right) const
@@ -372,8 +379,8 @@ struct index_key
                    to_raw_pointer(right.mp_str), m_len) == 0;
    }
 
-   void name(const CharT *name)
-   {  mp_str = name; }
+   void name(const CharT *nm)
+   {  mp_str = nm; }
 
    void name_length(size_type len)
    {  m_len = len; }
@@ -474,12 +481,12 @@ class segment_manager_iterator_value_adaptor<Iterator, false>
 
 template<class Iterator, bool intrusive>
 struct segment_manager_iterator_transform
-   :  std::unary_function< typename Iterator::value_type
+   :  std::unary_function< typename std::iterator_traits<Iterator>::value_type
                          , segment_manager_iterator_value_adaptor<Iterator, intrusive> >
 {
    typedef segment_manager_iterator_value_adaptor<Iterator, intrusive> result_type;
-  
-   result_type operator()(const typename Iterator::value_type &arg) const
+
+   result_type operator()(const typename std::iterator_traits<Iterator>::value_type &arg) const
    {  return result_type(arg); }
 };
 

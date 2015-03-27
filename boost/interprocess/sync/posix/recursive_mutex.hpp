@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -27,17 +27,22 @@
 #ifndef BOOST_INTERPROCESS_DETAIL_POSIX_RECURSIVE_MUTEX_HPP
 #define BOOST_INTERPROCESS_DETAIL_POSIX_RECURSIVE_MUTEX_HPP
 
+#if defined(_MSC_VER)
+#  pragma once
+#endif
+
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 
 #include <pthread.h>
-#include <errno.h>  
+#include <errno.h>
 #include <boost/interprocess/sync/posix/pthread_helpers.hpp>
 #include <boost/interprocess/sync/posix/ptime_to_timespec.hpp>
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
 #include <boost/interprocess/exceptions.hpp>
 #ifndef BOOST_INTERPROCESS_POSIX_TIMEOUTS
 #  include <boost/interprocess/detail/os_thread_functions.hpp>
+#  include <boost/interprocess/sync/detail/common_algorithms.hpp>
 #endif
 #include <boost/assert.hpp>
 
@@ -92,11 +97,12 @@ inline bool posix_recursive_mutex::try_lock()
 
 inline bool posix_recursive_mutex::timed_lock(const boost::posix_time::ptime &abs_time)
 {
+   #ifdef BOOST_INTERPROCESS_POSIX_TIMEOUTS
+   //Posix does not support infinity absolute time so handle it here
    if(abs_time == boost::posix_time::pos_infin){
       this->lock();
       return true;
    }
-   #ifdef BOOST_INTERPROCESS_POSIX_TIMEOUTS
 
    timespec ts = ptime_to_timespec(abs_time);
    int res = pthread_mutex_timedlock(&m_mut, &ts);
@@ -106,22 +112,7 @@ inline bool posix_recursive_mutex::timed_lock(const boost::posix_time::ptime &ab
 
    #else //BOOST_INTERPROCESS_POSIX_TIMEOUTS
 
-   //Obtain current count and target time
-   boost::posix_time::ptime now = microsec_clock::universal_time();
-
-   do{
-      if(this->try_lock()){
-         break;
-      }
-      now = microsec_clock::universal_time();
-
-      if(now >= abs_time){
-         return false;
-      }
-      // relinquish current time slice
-     thread_yield();
-   }while (true);
-   return true;
+   return ipcdetail::try_based_timed_lock(*this, abs_time);
 
    #endif   //BOOST_INTERPROCESS_POSIX_TIMEOUTS
 }
@@ -130,7 +121,7 @@ inline void posix_recursive_mutex::unlock()
 {
    int res = 0;
    res = pthread_mutex_unlock(&m_mut);
-   BOOST_ASSERT(res == 0);
+   BOOST_ASSERT(res == 0); (void)res;
 }
 
 }  //namespace ipcdetail {

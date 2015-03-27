@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -11,7 +11,7 @@
 #ifndef BOOST_INTERPROCESS_PTHREAD_HELPERS_HPP
 #define BOOST_INTERPROCESS_PTHREAD_HELPERS_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined(_MSC_VER)
 #  pragma once
 #endif
 
@@ -19,8 +19,8 @@
 #include <boost/interprocess/detail/workaround.hpp>
 
 #include <pthread.h>
-#include <errno.h>  
-#include <boost/interprocess/exceptions.hpp>  
+#include <errno.h>
+#include <boost/interprocess/exceptions.hpp>
 
 namespace boost {
 namespace interprocess {
@@ -86,7 +86,7 @@ namespace ipcdetail{
 
       void release() {mp_mut = 0; }
 
-    private:    
+    private:
       pthread_mutex_t *mp_mut;
    };
 
@@ -105,7 +105,7 @@ namespace ipcdetail{
 
       void release()       { mp_cond = 0; }
 
-    private:  
+    private:
       pthread_cond_t *mp_cond;
    };
 
@@ -151,7 +151,7 @@ namespace ipcdetail{
 
       void release() {mp_barrier = 0; }
 
-    private:    
+    private:
       pthread_barrier_t *mp_barrier;
    };
 
