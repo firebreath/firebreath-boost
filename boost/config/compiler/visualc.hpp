@@ -157,7 +157,7 @@
 #  define BOOST_NO_CXX11_SCOPED_ENUMS
 #endif // _MSC_VER < 1700
 
-// C++11 features supported by VC++ 12 (aka 2013).
+// C++11 features supported by VC++ 12 (aka 2013)
 //
 #if _MSC_FULL_VER < 180020827
 #  define BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
@@ -172,11 +172,9 @@
 #  define BOOST_NO_CXX11_DECLTYPE_N3276
 #endif
 
-// C++11 features supported by VC++ 14 (aka 2014) CTP1
-// Because the CTP is unsupported, unrelease, and only alpha quality,
-// it is only supported if BOOST_MSVC_ENABLE_2014_JUN_CTP is defined.
+// C++11 features supported by VC++ 14 (aka 2014)
 //
-#if (_MSC_FULL_VER < 190021730) || !defined(BOOST_MSVC_ENABLE_2014_JUN_CTP)
+#if _MSC_FULL_VER < 190023026
 #  define BOOST_NO_CXX11_NOEXCEPT
 #  define BOOST_NO_CXX11_REF_QUALIFIERS
 #  define BOOST_NO_CXX11_USER_DEFINED_LITERALS
@@ -290,8 +288,8 @@
 #endif
 
 //
-// last known and checked version is 19.00.22129 (VC14 CTP4):
-#if (_MSC_VER > 1800 && _MSC_FULL_VER > 190022129)
+// last known and checked version is 19.00.23026 (VC14):
+#if (_MSC_VER > 1900 && _MSC_FULL_VER > 190023026)
 #  if defined(BOOST_ASSERT_CONFIG)
 #     error "Unknown compiler version - please run the configure tests and report the results"
 #  else
