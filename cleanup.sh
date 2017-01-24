@@ -18,6 +18,7 @@ find . -type d -name preprocessed | xargs rm -Rf -v
 find . -type d -name meta | xargs rm -Rf -v
 cd -
 
+find . -name '*.md' | xargs rm -Rf -v
 find . -name '*.html' | xargs rm -Rf -v
 find . -name '*.css' | xargs rm -Rf -v
 find . -name '*.htm' | xargs rm -Rf -v
