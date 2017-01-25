@@ -26,12 +26,26 @@
 const bool boost::random::random_device::has_fixed_range;
 #endif
 
+// WinRT target.
+#if !defined(BOOST_RANDOM_WINDOWS_RUNTIME)
+# if defined(__cplusplus_winrt)
+#  include <winapifamily.h>
+#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#   define BOOST_RANDOM_WINDOWS_RUNTIME 1
+#  endif
+# endif
+#endif
 
 #if defined(BOOST_WINDOWS)
 
+#if !defined(BOOST_RANDOM_WINDOWS_RUNTIME)
 #include <windows.h>
 #include <wincrypt.h>
 #include <stdexcept>  // std::invalid_argument
+#else
+using namespace Platform;
+using namespace Windows::Security::Cryptography;
+#endif
 
 #define BOOST_AUTO_LINK_NOMANGLE
 #define BOOST_LIB_NAME "Advapi32"
@@ -59,15 +73,18 @@ CryptEnumProvidersA(
 #endif
 
 namespace {
-
+#if !defined(BOOST_RANDOM_WINDOWS_RUNTIME)
 const char * const default_token = MS_DEF_PROV_A;
-
+#else
+const char * const default_token = "";
+#endif
 }
 
 class boost::random::random_device::impl
 {
 public:
   impl(const std::string & token) : provider(token) {
+#if !defined(BOOST_RANDOM_WINDOWS_RUNTIME)
     char buffer[80];
     DWORD type;
     DWORD len;
@@ -88,24 +105,35 @@ public:
         CRYPT_VERIFYCONTEXT | CRYPT_SILENT)) {
       error("Could not acquire CSP context");
     }
+#endif
   }
 
+#if !defined(BOOST_RANDOM_WINDOWS_RUNTIME)
   ~impl() {
     if(!CryptReleaseContext(hProv, 0)) error("Could not release CSP context");
   }
+#endif
 
   unsigned int next() {
     unsigned int result;
 
+#if !defined(BOOST_RANDOM_WINDOWS_RUNTIME)
     if(!CryptGenRandom(hProv, sizeof(result),
         static_cast<BYTE*>(static_cast<void*>(&result)))) {
       error("error while reading");
     }
+#else
+    auto buffer = CryptographicBuffer::GenerateRandom(sizeof(result));
+    auto data = ref new Array<unsigned char>(buffer->Length);
+    CryptographicBuffer::CopyToByteArray(buffer, &data);
+    memcpy(&result, data->begin(), data->end() - data->begin());
+#endif
 
     return result;
   }
 
 private:
+#if !defined(BOOST_RANDOM_WINDOWS_RUNTIME)
   void error(const char * msg) {
     DWORD error_code = GetLastError();
     boost::throw_exception(
@@ -114,8 +142,9 @@ private:
         std::string("boost::random_device: ") + msg + 
         " Cryptographic Service Provider " + provider));
   }
-  const std::string provider;
   HCRYPTPROV hProv;
+#endif
+  const std::string provider;
 };
 
 #else
@@ -168,13 +197,17 @@ public:
 
   unsigned int next() {
     unsigned int result;
-    long sz = read(fd, reinterpret_cast<char *>(&result), sizeof(result));
-    if(sz == -1)
-      error("error while reading");
-    else if(sz != sizeof(result)) {
-      errno = 0;
-      error("EOF while reading");
-    }
+    std::size_t offset = 0;
+    do {
+      long sz = read(fd, reinterpret_cast<char *>(&result) + offset, sizeof(result) - offset);
+      if(sz == -1)
+        error("error while reading");
+      else if(sz == 0) {
+        errno = 0;
+        error("EOF while reading");
+      }
+      offset += sz;
+    } while(offset < sizeof(result));
     return result;
   }
 
