@@ -73,6 +73,8 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 
 ***************************************************************************/
+#define BOOST_ALL_NO_LIB
+#if 0
 
 #ifdef __cplusplus
 #  ifndef BOOST_CONFIG_HPP
@@ -437,3 +439,4 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #endif
 
 
+#endif
